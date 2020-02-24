@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>daypilot-project</title>
+
+  <!-- DayPilot library 
+  <script src="js/daypilot/daypilot-all.min.js"></script>-->
+  <script src="js/daypilot/daypilot-common.src.js"></script>
+  <script src="js/daypilot/daypilot-calendar.src.js"></script>
+
+</head>
+
+<body>
+  <div class="main">
+    <div id="dp"></div>
+  </div>
+
+  <script>
+    var dp = new DayPilot.Calendar("dp");
+    dp.locale = "en-gb";
+    dp.viewType = "Week";
+    dp.headerDateFormat = "dddd";
+    dp.cellHeight = 18;
+    dp.cellDuration = 15;
+    dp.timeHeaderCellDuration = 15;
+    dp.eventArrangement = "Full";
+    dp.allowEventOverlap = false;
+    dp.timeRangeSelectedHandling = "Enabled";
+    dp.onTimeRangeSelected = function (args) {
+      dp.clearSelection();
+      dp.events.add(new DayPilot.Event({
+        start: args.start,
+        end: args.end,
+        id: DayPilot.guid(),
+        text: "available"
+      }));
+    };
+    dp.eventDeleteHandling = "Update";
+    dp.eventMoveHandling = "Update";
+    dp.eventResizeHandling = "Update";
+    dp.eventClickHandling = "Enabled";
+    dp.onEventClicked = function (args) {
+      if (args.e.text() == "available") {
+        args.e.text("maybe available");
+      } else {
+        args.e.text("available");
+      }
+      dp.events.update(args.e);
+    };
+    dp.eventHoverHandling = "Disabled";
+    dp.heightSpec = "Full";
+    dp.init();
+    console.log(dp);
+  </script>
+
+</body>
+
+</html>
