@@ -78,7 +78,7 @@
                 )
                 .then((data) => {
                     let loc = window.location.href.split('/');
-                    window.location.href = "https://" + loc[2] + "?id=" + data.token;
+                    window.location.href = "https://" + loc[2] + "/calendar?id=" + data.token;
                 });
         }
     </script>
