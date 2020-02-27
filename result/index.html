@@ -37,6 +37,26 @@
         #edit {
             background: rgb(11, 180, 11);
         }
+
+        .grid {
+            display: grid;
+            grid-template-areas: 'bl l r br';
+        }
+
+        .grid>div {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 30px;
+        }
+
+        #dp {
+            margin: auto;
+        }
+
+        #dp th,
+        #dp td {
+            padding: 0px 10px;
+        }
     </style>
 </head>
 
@@ -44,7 +64,6 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         var id = urlParams.get('id');
-        id = "327be6f1509411a6d0197395a1cc405e47003036e3f4cc7e5528df76d543e545"; //todo
         if (id == null) {
             let loc = window.location.href.split('/');
             window.location.replace("https://" + loc[2]);
@@ -61,10 +80,17 @@
         <div id="edit" onclick="edit()" class="right">edit</div>
     </div>
     <div class="main">
-        <div id="dp"></div>
+        <table id="dp">
+            <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Users</th>
+            </tr>
+        </table>
     </div>
 
     <script>
+        var users = [];
         const weekday = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         function getDateString(time) {
             let hours = "" + time.getUTCHours();
@@ -105,7 +131,7 @@
             timeEnd() {
                 return this.fromVal(this.endIdx);
             }
-            users(users) {
+            users() {
                 let partUsers = [];
                 users.forEach(user => {
                     if ((user.flag & this.flag) === user.flag) {
@@ -119,7 +145,6 @@
             let timeSlotAvailable = new Uint8Array(24 * 4 * 7); // 15 minutes
             let timeSlot = new Uint8Array(24 * 4 * 7);
             // Create users
-            let users = [];
             for (let username in data) {
                 let _user = new User(username, data[username]);
                 users.push(_user);
@@ -166,24 +191,19 @@
                 availabilities = availabilities.filter(a => a.startIdx != a.endIdx);
                 maxAvail -= 1;
             }
-            // Print time slots
-            if (availabilities.length >= 1) {
-                console.log("Found matching time slot(s)");
-                availabilities.forEach(availability => {
-                    if (availability.timeStart().getTime() !== availability.timeEnd().getTime()) {
-                        let start = getDateString(availability.timeStart());
-                        let end = getDateString(availability.timeEnd());
-                        console.log(`\nFrom ${start} to ${end}\nUsers: ${availability.users(users)}`);
-                    }
-                });
-            }
+
+            return availabilities;
         }
 
         fetch('https://www.jsonstore.io/' + id)
             .then((res) => {
                 return res.json()
             }).then((data) => {
-                getAvailabilities(data.result);
+                let a = getAvailabilities(data.result);
+                let el = document.getElementById("dp");
+                a.forEach(av => {
+                    el.innerHTML += `<tr><td>${getDateString(av.timeStart())}</td><td>${getDateString(av.timeEnd())}</td><td>${av.users()}</td></tr>`;
+                })
             });
     </script>
 

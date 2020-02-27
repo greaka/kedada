@@ -48,17 +48,12 @@
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     var id = urlParams.get('id');
-    id = "327be6f1509411a6d0197395a1cc405e47003036e3f4cc7e5528df76d543e545"
     if (id == null) {
       let loc = window.location.href.split('/');
       window.location.replace("https://" + loc[2]);
     }
 
-    //localStorage['name'] = userName = localStorage['name'] || prompt("Enter your name");
-    var userName = undefined;
-    if (userName == undefined) {
-      userName = window.prompt("Enter your name")
-    }
+    localStorage['name'] = userName = localStorage['name'] || prompt("Enter your name");
 
     function save() {
       fetch('https://www.jsonstore.io/' + id + '/' + userName, {
