@@ -2,117 +2,95 @@
 <html>
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>daypilot-project</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>kedada</title>
+    <meta name="description" content="Tired of Doodle? Try Kedada, no registrations, all public and open source.">
+    <meta name="keywords" content="Doodle,Dudle,Meetup,calendar,schedule,find,event,appointment,date">
 
-  <!-- DayPilot library 
-  <script src="js/daypilot/daypilot-all.min.js"></script>-->
-  <script src="js/daypilot/daypilot-common.src.js"></script>
-  <script src="js/daypilot/daypilot-calendar.src.js"></script>
-  <link rel="stylesheet" href="css/dudle.css">
+    <style>
+        .grid {
+            display: grid;
+            grid-template-areas: 'bt bt bt bt bt' 'bl ctl ctop ctr br' 'bl cleft center cright br' 'bl cbl cbottom cbr br' 'bb bb bb bb bb';
+        }
 
-  <style>
-    .clearfix {
-      overflow: auto;
-    }
+        .grid>div {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 30px;
+        }
 
-    .clearfix>h1 {
-      display: inline;
-    }
+        .ctl {
+            grid-area: ctl;
+        }
 
-    .clearfix::after {
-      content: "";
-      clear: both;
-      display: table;
-    }
+        .ctop {
+            grid-area: ctop;
+        }
 
-    .right {
-      float: right;
-    }
+        .ctr {
+            grid-area: ctr;
+        }
 
-    div.right {
-      padding: 5px 10px;
-      border-radius: 3px;
-      cursor: pointer;
-    }
+        .cleft {
+            grid-area: cleft;
+        }
 
-    #save {
-      background: rgb(11, 180, 11);
-    }
-  </style>
+        .center {
+            grid-area: center;
+        }
+
+        .cright {
+            grid-area: cright;
+        }
+
+        .cbl {
+            grid-area: cbl;
+        }
+
+        .cbottom {
+            grid-area: cbottom;
+        }
+
+        .cbr {
+            grid-area: cbr;
+        }
+
+        .button {
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            background: rgb(24, 168, 204);
+        }
+
+        .blank {
+            grid-area: blank;
+        }
+    </style>
 </head>
 
 <body>
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    var id = urlParams.get('id');
-    id = "qozodipuzo" // todo
-    if (id == null) {
-      var loc = window.location.href;
-      loc = loc.split('/');
-      window.location.replace("https://" + loc[2]);
-    }
+    <script>
+        function create() {
+            fetch('https://www.jsonstore.io/get-token')
+                .then((response) =>
+                    response.json()
+                )
+                .then((data) => {
+                    let loc = window.location.href.split('/');
+                    window.location.href = "https://" + loc[2] + "?id=" + data.token;
+                });
+        }
+    </script>
 
-    //localStorage['name'] = name = localStorage['name'] || prompt("Enter your name");
-    var name = undefined; //todo
-    if (name == undefined) {
-      name = window.prompt("Enter your name")
-    }
-
-    function save() {
-      console.log(dp.events.list)
-    }
-  </script>
-
-  <div class="clearfix">
-    <h1 id="greeting"></h1>
-    <div id="save" onclick="save()" class="right">save</div>
-  </div>
-  <div class="main">
-    <div id="dp"></div>
-  </div>
-
-  <script>
-    var h1 = document.getElementById("greeting").innerHTML = "Hi " + name + ", select all times you are available:"
-
-    var dp = new DayPilot.Calendar("dp");
-    dp.locale = "en-gb";
-    dp.viewType = "Week";
-    dp.headerDateFormat = "dddd";
-    dp.cellHeight = 9;
-    dp.cellDuration = 15;
-    dp.timeHeaderCellDuration = 15;
-    dp.eventArrangement = "Full";
-    dp.allowEventOverlap = false;
-    dp.timeRangeSelectedHandling = "Enabled";
-    dp.onTimeRangeSelected = function (args) {
-      dp.clearSelection();
-      dp.events.add(new DayPilot.Event({
-        start: args.start,
-        end: args.end,
-        id: DayPilot.guid(),
-        text: "available"
-      }));
-    };
-    dp.eventDeleteHandling = "Update";
-    dp.eventMoveHandling = "Update";
-    dp.eventResizeHandling = "Update";
-    dp.eventClickHandling = "Enabled";
-    dp.onEventClicked = function (args) {
-      if (args.e.text() == "available") {
-        args.e.text("maybe available");
-      } else {
-        args.e.text("available");
-      }
-      dp.events.update(args.e);
-    };
-    dp.eventHoverHandling = "Disabled";
-    dp.heightSpec = "Full";
-    dp.init();
-    console.log(dp);
-  </script>
-
+    <div class="grid">
+        <div class="ctl">
+            Kedada
+        </div>
+        <div class="center">
+            <div class="button" onclick="create()">Find a date!</div>
+        </div>
+    </div>
 </body>
 
 </html>
