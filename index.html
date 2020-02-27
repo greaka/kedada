@@ -2,95 +2,95 @@
 <html>
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Kedada</title>
-    <meta name="description" content="Tired of Doodle? Try Kedada, no registrations, all public and open source.">
-    <meta name="keywords" content="Doodle,Dudle,Meetup,calendar,schedule,find,event,appointment,date">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kedada</title>
+  <meta name="description" content="Tired of Doodle? Try Kedada, no registrations, all public and open source.">
+  <meta name="keywords" content="Doodle,Dudle,Meetup,calendar,schedule,find,event,appointment,date">
 
-    <style>
-        .grid {
-            display: grid;
-            grid-template-areas: 'bt bt bt bt bt' 'bl ctl ctop ctr br' 'bl cleft center cright br' 'bl cbl cbottom cbr br' 'bb bb bb bb bb';
-        }
+  <style>
+    .grid {
+      display: grid;
+      grid-template-areas: 'bt bt bt bt bt''bl ctl ctop ctr br''bl cleft center cright br''bl cbl cbottom cbr br''bb bb bb bb bb';
+    }
 
-        .grid>div {
-            text-align: center;
-            padding: 20px 0;
-            font-size: 30px;
-        }
+    .grid>div {
+      text-align: center;
+      padding: 20px 0;
+      font-size: 30px;
+    }
 
-        .ctl {
-            grid-area: ctl;
-        }
+    .ctl {
+      grid-area: ctl;
+    }
 
-        .ctop {
-            grid-area: ctop;
-        }
+    .ctop {
+      grid-area: ctop;
+    }
 
-        .ctr {
-            grid-area: ctr;
-        }
+    .ctr {
+      grid-area: ctr;
+    }
 
-        .cleft {
-            grid-area: cleft;
-        }
+    .cleft {
+      grid-area: cleft;
+    }
 
-        .center {
-            grid-area: center;
-        }
+    .center {
+      grid-area: center;
+    }
 
-        .cright {
-            grid-area: cright;
-        }
+    .cright {
+      grid-area: cright;
+    }
 
-        .cbl {
-            grid-area: cbl;
-        }
+    .cbl {
+      grid-area: cbl;
+    }
 
-        .cbottom {
-            grid-area: cbottom;
-        }
+    .cbottom {
+      grid-area: cbottom;
+    }
 
-        .cbr {
-            grid-area: cbr;
-        }
+    .cbr {
+      grid-area: cbr;
+    }
 
-        .button {
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            background: rgb(24, 168, 204);
-        }
+    .button {
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      background: rgb(24, 168, 204);
+    }
 
-        .blank {
-            grid-area: blank;
-        }
-    </style>
+    .blank {
+      grid-area: blank;
+    }
+  </style>
 </head>
 
 <body>
-    <script>
-        function create() {
-            fetch('https://www.jsonstore.io/get-token')
-                .then((response) =>
-                    response.json()
-                )
-                .then((data) => {
-                    let loc = window.location.href.split('/');
-                    window.location.href = "https://" + loc[2] + "/calendar?id=" + data.token;
-                });
-        }
-    </script>
+  <script>
+    function create() {
+      fetch('https://www.jsonstore.io/get-token')
+        .then((response) =>
+          response.json()
+        )
+        .then((data) => {
+          let loc = window.location.href.split('/');
+          window.location.href = "https://" + loc[2] + "/" + loc[3] + "/calendar?id=" + data.token;
+        });
+    }
+  </script>
 
-    <div class="grid">
-        <div class="ctl">
-            Kedada
-        </div>
-        <div class="center">
-            <div class="button" onclick="create()">Find a date!</div>
-        </div>
+  <div class="grid">
+    <div class="ctl">
+      Kedada
     </div>
+    <div class="center">
+      <div class="button" onclick="create()">Find a date!</div>
+    </div>
+  </div>
 </body>
 
 </html>

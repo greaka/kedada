@@ -66,12 +66,12 @@
         var id = urlParams.get('id');
         if (id == null) {
             let loc = window.location.href.split('/');
-            window.location.replace("https://" + loc[2]);
+            window.location.replace("https://" + loc[2] + "/" + loc[3]);
         }
 
         function edit() {
             let loc = window.location.href.split('/');
-            window.location.href = "https://" + loc[2] + "/calendar?id=" + id;
+            window.location.href = "https://" + loc[2] + "/" + loc[3] + "/calendar?id=" + id;
         }
     </script>
 
