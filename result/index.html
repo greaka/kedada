@@ -79,7 +79,7 @@
         <h1>Results</h1>
         <div id="edit" onclick="edit()" class="right">edit</div>
     </div>
-    <div class="main">
+    <div id="main">
         <table id="dp">
             <tr>
                 <th>Start</th>
@@ -91,6 +91,7 @@
 
     <script>
         var users = [];
+        var lonely = [];
         const weekday = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         function getDateString(time) {
             let hours = "" + time.getUTCHours();
@@ -148,6 +149,7 @@
             for (let username in data) {
                 let _user = new User(username, data[username]);
                 users.push(_user);
+                lonely.push(username);
             }
             // Set timing flags
             users.forEach(user => {
@@ -192,6 +194,10 @@
                 maxAvail -= 1;
             }
 
+            availabilities.forEach(av => {
+                av.users().forEach(u => { lonely = lonely.filter(l => l !== u); });
+            })
+
             return availabilities;
         }
 
@@ -204,6 +210,8 @@
                 a.forEach(av => {
                     el.innerHTML += `<tr><td>${getDateString(av.timeStart())}</td><td>${getDateString(av.timeEnd())}</td><td>${av.users()}</td></tr>`;
                 })
+                let m = document.getElementById("main");
+                m.innerHTML += `users not in the list: ${lonely}`;
             });
     </script>
 
