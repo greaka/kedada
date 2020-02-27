@@ -139,29 +139,42 @@
                 }
             }
             // Collect matching availabilities
-            let groupMatched = false;
-            let idx = -1;
             let availabilities = [];
-            for (let i = 0; i < timeSlot.length; i++) {
-                if (timeSlot[i] === maxAvail) {
-                    if (!groupMatched) {
-                        idx += 1;
-                        availabilities.push(new Availability(i, timeSlotAvailable[i]));
-                        groupMatched = true;
+            let getAvail = () => {
+                let groupMatched = false;
+                let idx = -1;
+                for (let i = 0; i < timeSlot.length; i++) {
+                    if (timeSlot[i] === maxAvail) {
+                        if (!groupMatched) {
+                            idx += 1;
+                            availabilities.push(new Availability(i, timeSlotAvailable[i]));
+                            groupMatched = true;
+                        } else if (timeSlotAvailable[i] !== timeSlotAvailable[i - 1]) {
+                            availabilities[idx].endIdx = i - 1;
+                            idx += 1;
+                            availabilities.push(new Availability(i, timeSlotAvailable[i]));
+                        }
+                    }
+                    if (groupMatched && timeSlot[i] < maxAvail) {
+                        availabilities[idx].endIdx = i - 1;
+                        groupMatched = false;
                     }
                 }
-                if (groupMatched && timeSlot[i] < maxAvail) {
-                    availabilities[idx].endIdx = i - 1;
-                    groupMatched = false;
-                }
+            };
+            while (availabilities.length == 0) {
+                getAvail();
+                availabilities = availabilities.filter(a => a.startIdx != a.endIdx);
+                maxAvail -= 1;
             }
             // Print time slots
             if (availabilities.length >= 1) {
                 console.log("Found matching time slot(s)");
                 availabilities.forEach(availability => {
-                    let start = getDateString(availability.timeStart());
-                    let end = getDateString(availability.timeEnd());
-                    console.log(`\nFrom ${start} to ${end}\nUsers: ${availability.users(users)}`);
+                    if (availability.timeStart().getTime() !== availability.timeEnd().getTime()) {
+                        let start = getDateString(availability.timeStart());
+                        let end = getDateString(availability.timeEnd());
+                        console.log(`\nFrom ${start} to ${end}\nUsers: ${availability.users(users)}`);
+                    }
                 });
             }
         }
