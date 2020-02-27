@@ -10,20 +10,77 @@
   <script src="js/daypilot/daypilot-all.min.js"></script>-->
   <script src="js/daypilot/daypilot-common.src.js"></script>
   <script src="js/daypilot/daypilot-calendar.src.js"></script>
+  <link rel="stylesheet" href="css/dudle.css">
 
+  <style>
+    .clearfix {
+      overflow: auto;
+    }
+
+    .clearfix>h1 {
+      display: inline;
+    }
+
+    .clearfix::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+
+    .right {
+      float: right;
+    }
+
+    div.right {
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    #save {
+      background: rgb(11, 180, 11);
+    }
+  </style>
 </head>
 
 <body>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    var id = urlParams.get('id');
+    id = "qozodipuzo" // todo
+    if (id == null) {
+      var loc = window.location.href;
+      loc = loc.split('/');
+      window.location.replace("https://" + loc[2]);
+    }
+
+    //localStorage['name'] = name = localStorage['name'] || prompt("Enter your name");
+    var name = undefined; //todo
+    if (name == undefined) {
+      name = window.prompt("Enter your name")
+    }
+
+    function save() {
+      console.log(dp.events.list)
+    }
+  </script>
+
+  <div class="clearfix">
+    <h1 id="greeting"></h1>
+    <div id="save" onclick="save()" class="right">save</div>
+  </div>
   <div class="main">
     <div id="dp"></div>
   </div>
 
   <script>
+    var h1 = document.getElementById("greeting").innerHTML = "Hi " + name + ", select all times you are available:"
+
     var dp = new DayPilot.Calendar("dp");
     dp.locale = "en-gb";
     dp.viewType = "Week";
     dp.headerDateFormat = "dddd";
-    dp.cellHeight = 18;
+    dp.cellHeight = 9;
     dp.cellDuration = 15;
     dp.timeHeaderCellDuration = 15;
     dp.eventArrangement = "Full";
