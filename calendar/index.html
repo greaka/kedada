@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>kedada</title>
+  <title>Kedada</title>
   <meta name="description" content="Tired of Doodle? Try Kedada, no registrations, all public and open source.">
 
   <!-- DayPilot library
@@ -48,18 +48,20 @@
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     var id = urlParams.get('id');
+    id = "327be6f1509411a6d0197395a1cc405e47003036e3f4cc7e5528df76d543e545"
     if (id == null) {
       let loc = window.location.href.split('/');
       window.location.replace("https://" + loc[2]);
     }
 
-    localStorage['name'] = name = localStorage['name'] || prompt("Enter your name");
-    if (name == undefined) {
-      name = window.prompt("Enter your name")
+    //localStorage['name'] = userName = localStorage['name'] || prompt("Enter your name");
+    var userName = undefined;
+    if (userName == undefined) {
+      userName = window.prompt("Enter your name")
     }
 
     function save() {
-      fetch('https://www.jsonstore.io/' + id + '/' + name, {
+      fetch('https://www.jsonstore.io/' + id + '/' + userName, {
         headers: {
           'Content-type': 'application/json'
         },
@@ -69,7 +71,7 @@
         return res.json()
       }).then((data) => {
         let loc = window.location.href.split('/');
-        window.location.href = "https://" + loc[2] + "/result?id=" + data.token;
+        window.location.href = "https://" + loc[2] + "/result?id=" + id;
       });
     }
   </script>
@@ -83,12 +85,13 @@
   </div>
 
   <script>
-    var h1 = document.getElementById("greeting").innerHTML = "Hi " + name + ", select all times you are available:"
+    var h1 = document.getElementById("greeting").innerHTML = "Hi " + userName + ", select all the times you are available:"
 
     var dp = new DayPilot.Calendar("dp");
     dp.locale = "en-gb";
     dp.viewType = "Week";
     dp.headerDateFormat = "dddd";
+    dp.startDate = "2018-01-01";
     dp.cellHeight = 9;
     dp.cellDuration = 15;
     dp.timeHeaderCellDuration = 15;
@@ -129,7 +132,7 @@
     dp.events.add(startEvent);
     dp.events.remove(startEvent);
 
-    fetch('https://www.jsonstore.io/' + id + '/' + name)
+    fetch('https://www.jsonstore.io/' + id + '/' + userName)
       .then((response) =>
         response.json()
       )

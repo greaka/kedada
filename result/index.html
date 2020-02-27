@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kedada</title>
+    <meta name="description" content="Tired of Doodle? Try Kedada, no registrations, all public and open source.">
+
+    <link rel="stylesheet" href="../css/dudle.css">
+
+    <style>
+        .clearfix {
+            overflow: auto;
+        }
+
+        .clearfix>h1 {
+            display: inline;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .right {
+            float: right;
+        }
+
+        div.right {
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        #edit {
+            background: rgb(11, 180, 11);
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        var id = urlParams.get('id');
+        id = "327be6f1509411a6d0197395a1cc405e47003036e3f4cc7e5528df76d543e545"; //todo
+        if (id == null) {
+            let loc = window.location.href.split('/');
+            window.location.replace("https://" + loc[2]);
+        }
+
+        function edit() {
+            let loc = window.location.href.split('/');
+            window.location.href = "https://" + loc[2] + "/calendar?id=" + id;
+        }
+    </script>
+
+    <div class="clearfix">
+        <h1>Results</h1>
+        <div id="edit" onclick="edit()" class="right">edit</div>
+    </div>
+    <div class="main">
+        <div id="dp"></div>
+    </div>
+
+    <script>
+        const weekday = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        function getDateString(time) {
+            let hours = "" + time.getUTCHours();
+            let minutes = "" + time.getUTCMinutes();
+            return weekday[time.getUTCDate() - 1] + " " + hours.padStart(2, '0') + ":" + minutes.padStart(2, '0');
+        }
+        let userCounter = 0;
+        class User {
+            constructor(name, timings) {
+                this.timings = new Uint8Array(24 * 4 * 7);
+                this.flag = 1 << userCounter++;
+                this.name = name;
+                timings.forEach(timing => {
+                    let start = new Date(timing["start"] + 'Z');
+                    let end = new Date(timing["end"] + 'Z');
+                    let startIdx = Math.floor((start.getUTCDate() - 1) * 24 * 60 + start.getUTCHours() * 60 + start.getUTCMinutes()) / 15;
+                    let endIdx = Math.ceil((end.getUTCDate() - 1) * 24 * 60 + end.getUTCHours() * 60 + end.getUTCMinutes()) / 15;
+                    for (let i = startIdx; i <= endIdx; i++) {
+                        this.timings[i] = 1;
+                    }
+                });
+            }
+        }
+        class Availability {
+            constructor(startIdx, flag) {
+                this.startIdx = startIdx;
+                this.endIdx = startIdx;
+                this.flag = flag;
+            }
+            fromVal(val) {
+                let time = new Date(Date.UTC(2018, 1, 1));
+                time = new Date(time.getTime() + val * 15 * 60 * 1000);
+                return time;
+            }
+            timeStart() {
+                return this.fromVal(this.startIdx);
+            }
+            timeEnd() {
+                return this.fromVal(this.endIdx);
+            }
+            users(users) {
+                let partUsers = [];
+                users.forEach(user => {
+                    if ((user.flag & this.flag) === user.flag) {
+                        partUsers.push(user.name);
+                    }
+                });
+                return partUsers;
+            }
+        }
+        function getAvailabilities(data) {
+            let timeSlotAvailable = new Uint8Array(24 * 4 * 7); // 15 minutes
+            let timeSlot = new Uint8Array(24 * 4 * 7);
+            // Create users
+            let users = [];
+            for (let username in data) {
+                let _user = new User(username, data[username]);
+                users.push(_user);
+            }
+            // Set timing flags
+            users.forEach(user => {
+                for (let i = 0; i < user.timings.length; i++) {
+                    timeSlot[i] += user.timings[i];
+                    timeSlotAvailable[i] += user.timings[i] * user.flag;
+                }
+            });
+            // Find highest availability
+            let maxAvail = 0;
+            for (let i = 0; i < timeSlot.length; i++) {
+                if (timeSlot[i] > maxAvail) {
+                    maxAvail = timeSlot[i];
+                }
+            }
+            // Collect matching availabilities
+            let groupMatched = false;
+            let idx = -1;
+            let availabilities = [];
+            for (let i = 0; i < timeSlot.length; i++) {
+                if (timeSlot[i] === maxAvail) {
+                    if (!groupMatched) {
+                        idx += 1;
+                        availabilities.push(new Availability(i, timeSlotAvailable[i]));
+                        groupMatched = true;
+                    }
+                }
+                if (groupMatched && timeSlot[i] < maxAvail) {
+                    availabilities[idx].endIdx = i - 1;
+                    groupMatched = false;
+                }
+            }
+            // Print time slots
+            if (availabilities.length >= 1) {
+                console.log("Found matching time slot(s)");
+                availabilities.forEach(availability => {
+                    let start = getDateString(availability.timeStart());
+                    let end = getDateString(availability.timeEnd());
+                    console.log(`\nFrom ${start} to ${end}\nUsers: ${availability.users(users)}`);
+                });
+            }
+        }
+
+        fetch('https://www.jsonstore.io/' + id)
+            .then((res) => {
+                return res.json()
+            }).then((data) => {
+                getAvailabilities(data.result);
+            });
+    </script>
+
+</body>
+
+</html>
