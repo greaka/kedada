@@ -90,8 +90,8 @@
     </div>
 
     <script>
-        var users = [];
-        var lonely = [];
+        let users = [];
+        let lonely = [];
         const weekday = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         function getDateString(time) {
             let hours = "" + time.getUTCHours();
@@ -118,6 +118,7 @@
         class Availability {
             constructor(startIdx, flag) {
                 this.startIdx = startIdx;
+                this.startDay = this.fromVal(this.startIdx).getDate();
                 this.endIdx = startIdx;
                 this.flag = flag;
             }
@@ -146,11 +147,12 @@
             let timeSlotAvailable = new Uint8Array(24 * 4 * 7); // 15 minutes
             let timeSlot = new Uint8Array(24 * 4 * 7);
             // Create users
-            for (let username in data) {
+            for (let username of Object.keys(data)) {
                 let _user = new User(username, data[username]);
                 users.push(_user);
                 lonely.push(username);
             }
+
             // Set timing flags
             users.forEach(user => {
                 for (let i = 0; i < user.timings.length; i++) {
@@ -158,41 +160,37 @@
                     timeSlotAvailable[i] += user.timings[i] * user.flag;
                 }
             });
-            // Find highest availability
-            let maxAvail = 0;
-            for (let i = 0; i < timeSlot.length; i++) {
-                if (timeSlot[i] > maxAvail) {
-                    maxAvail = timeSlot[i];
+
+            // Collect all flags
+            let knownFlags = [];
+            for (let i = 0; i < timeSlotAvailable.length; i++) {
+                if (!knownFlags.includes(timeSlotAvailable[ i ]) && timeSlotAvailable[ i ] !== 0) {
+                  knownFlags.push(timeSlotAvailable[ i ]);
                 }
             }
-            // Collect matching availabilities
+            knownFlags.sort((a, b) => b - a);
+
+            // Collect availabilities
             let availabilities = [];
-            let getAvail = () => {
-                let groupMatched = false;
-                let idx = -1;
-                for (let i = 0; i < timeSlot.length; i++) {
-                    if (timeSlot[i] === maxAvail) {
-                        if (!groupMatched) {
-                            idx += 1;
-                            availabilities.push(new Availability(i, timeSlotAvailable[i]));
-                            groupMatched = true;
-                        } else if (timeSlotAvailable[i] !== timeSlotAvailable[i - 1]) {
-                            availabilities[idx].endIdx = i - 1;
-                            idx += 1;
-                            availabilities.push(new Availability(i, timeSlotAvailable[i]));
-                        }
+            for (let i = 0; i < knownFlags.length; i++) {
+                let flag = knownFlags[ i ];
+                let availability = null;
+                for (let k = 0; k < timeSlotAvailable.length; k++) {
+                    if (!availability && (flag & timeSlotAvailable[ k ]) === flag) {
+                        availability = new Availability(k, flag);
                     }
-                    if (groupMatched && timeSlot[i] < maxAvail) {
-                        availabilities[idx].endIdx = i - 1;
-                        groupMatched = false;
+                    if (availability && (flag & timeSlotAvailable[ k ]) !== flag) {
+                        availability.endIdx = k - 1;
+                        break;
                     }
                 }
-            };
-            while (availabilities.length == 0) {
-                getAvail();
-                availabilities = availabilities.filter(a => a.startIdx != a.endIdx);
-                maxAvail -= 1;
+                if (availability) {
+                    availabilities.push(availability);
+                }
             }
+
+            // Filter out solo "groups"
+            availabilities = availabilities.filter(a => a.users().length > 1);
 
             availabilities.forEach(av => {
                 av.users().forEach(u => { lonely = lonely.filter(l => l !== u); });
@@ -206,9 +204,27 @@
                 return res.json()
             }).then((data) => {
                 let a = getAvailabilities(data.result);
+
+                // Remove everything below maxAvail-2
+                let maxAvail = users.length - lonely.length;
+                a = a.filter(_ => _.users().length >= maxAvail - 2);
+
+                a.sort((_a, _b) => {
+                    // Prefer higher user count for same day
+                    if (_a.startDay === _b.startDay) {
+                        return _a.users().length - _b.users.length;
+                    }
+                    return _a.startIdx - _b.startIdx
+                })
+
                 let el = document.getElementById("dp");
+                let lastDay = a[0].startDay;
                 a.forEach(av => {
-                    el.innerHTML += `<tr><td>${getDateString(av.timeStart())}</td><td>${getDateString(av.timeEnd())}</td><td>${av.users()}</td></tr>`;
+                    if (lastDay !== av.startDay) {
+                        el.innerHTML += "<tr><td></td><td>&nbsp;</td><td></td></tr>";
+                        lastDay = av.startDay;
+                    }
+                    el.innerHTML += `<tr><td>${getDateString(av.timeStart())}</td><td>${getDateString(av.timeEnd())}</td><td>${av.users().sort().join(", ")}</td></tr>`;
                 })
                 let m = document.getElementById("main");
                 m.innerHTML += `users not in the list: ${lonely}`;
