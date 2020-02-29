@@ -164,8 +164,8 @@
             // Collect all flags
             let knownFlags = [];
             for (let i = 0; i < timeSlotAvailable.length; i++) {
-                if (!knownFlags.includes(timeSlotAvailable[ i ]) && timeSlotAvailable[ i ] !== 0) {
-                  knownFlags.push(timeSlotAvailable[ i ]);
+                if (!knownFlags.includes(timeSlotAvailable[i]) && timeSlotAvailable[i] !== 0) {
+                    knownFlags.push(timeSlotAvailable[i]);
                 }
             }
             knownFlags.sort((a, b) => b - a);
@@ -173,13 +173,13 @@
             // Collect availabilities
             let availabilities = [];
             for (let i = 0; i < knownFlags.length; i++) {
-                let flag = knownFlags[ i ];
+                let flag = knownFlags[i];
                 let availability = null;
                 for (let k = 0; k < timeSlotAvailable.length; k++) {
-                    if (!availability && (flag & timeSlotAvailable[ k ]) === flag) {
+                    if (!availability && (flag & timeSlotAvailable[k]) === flag) {
                         availability = new Availability(k, flag);
                     }
-                    if (availability && (flag & timeSlotAvailable[ k ]) !== flag) {
+                    if (availability && (flag & timeSlotAvailable[k]) !== flag) {
                         availability.endIdx = k - 1;
                         break;
                     }
@@ -212,7 +212,7 @@
                 a.sort((_a, _b) => {
                     // Prefer higher user count for same day
                     if (_a.startDay === _b.startDay) {
-                        return _a.users().length - _b.users.length;
+                        return _a.users().length - _b.users().length;
                     }
                     return _a.startIdx - _b.startIdx
                 })
