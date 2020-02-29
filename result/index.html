@@ -212,7 +212,7 @@
                 a.sort((_a, _b) => {
                     // Prefer higher user count for same day
                     if (_a.startDay === _b.startDay) {
-                        return _a.users().length - _b.users().length;
+                        return _b.users().length - _a.users().length;
                     }
                     return _a.startIdx - _b.startIdx
                 })
