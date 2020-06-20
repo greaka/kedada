@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kedada</title>
   <meta name="description" content="Tired of Doodle? Try Kedada, no registrations, all public and open source.">
@@ -18,7 +18,7 @@
       overflow: auto;
     }
 
-    .clearfix>h1 {
+    .clearfix > h1 {
       display: inline;
     }
 
@@ -45,100 +45,115 @@
 </head>
 
 <body>
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    var id = urlParams.get('id');
-    if (id == null) {
-      let loc = window.location.href.split('/');
-      window.location.replace("https://" + loc[2] + "/" + loc[3]);
-    }
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const prefix = "greaka_kedada_";
+  var id = urlParams.get('id');
+  if (id == null) {
+    let loc = window.location.href.split('/');
+    window.location.replace("https://" + loc[2] + "/" + loc[3]);
+  }
 
-    localStorage['name'] = userName = localStorage['name'] || prompt("Enter your name");
+  localStorage['name'] = userName = localStorage['name'] || prompt("Enter your name");
+  var recordID = null;
 
-    function save() {
-      fetch('https://www.jsonstore.io/' + id + '/' + userName, {
+  function save() {
+    let result;
+    let data = {data: dp.events.list};
+    if (recordID == null) {
+      result = fetch('https://jsonbox.io/' + prefix + id + '/' + userName, {
         headers: {
-          'Content-type': 'application/json'
+          'content-type': 'application/json'
         },
         method: 'POST',
-        body: JSON.stringify(dp.events.list),
-      }).then((res) => {
-        return res.json()
-      }).then((data) => {
-        let loc = window.location.href.split('/');
-        window.location.href = "https://" + loc[2] + "/" + loc[3] + "/result?id=" + id;
+        body: JSON.stringify(data),
+      });
+    } else {
+      result = fetch('https://jsonbox.io/' + prefix + id + '/' + recordID, {
+        headers: {
+          'content-type': 'application/json'
+        },
+        method: 'PUT',
+        body: JSON.stringify(data),
       });
     }
-  </script>
-
-  <div class="clearfix">
-    <h1 id="greeting"></h1>
-    <div id="save" onclick="save()" class="right">save</div>
-  </div>
-  <div class="main">
-    <div id="dp"></div>
-  </div>
-
-  <script>
-    var h1 = document.getElementById("greeting").innerHTML = "Hi " + userName + ", select all the times you are available:"
-
-    var dp = new DayPilot.Calendar("dp");
-    dp.locale = "en-gb";
-    dp.viewType = "Week";
-    dp.headerDateFormat = "dddd";
-    dp.startDate = "2018-01-01";
-    dp.cellHeight = 9;
-    dp.cellDuration = 15;
-    dp.timeHeaderCellDuration = 15;
-    dp.eventArrangement = "Full";
-    dp.allowEventOverlap = false;
-    dp.timeRangeSelectedHandling = "Enabled";
-    dp.onTimeRangeSelected = function (args) {
-      dp.clearSelection();
-      dp.events.add(new DayPilot.Event({
-        start: args.start,
-        end: args.end,
-        id: DayPilot.guid(),
-        text: "available"
-      }));
-    };
-    dp.eventDeleteHandling = "Update";
-    dp.eventMoveHandling = "Update";
-    dp.eventResizeHandling = "Update";
-    dp.eventClickHandling = "Enabled";
-    dp.onEventClicked = function (args) {
-      if (args.e.text() == "available") {
-        args.e.text("maybe available");
-      } else {
-        args.e.text("available");
-      }
-      dp.events.update(args.e);
-    };
-    dp.eventHoverHandling = "Disabled";
-    dp.heightSpec = "Full";
-    dp.init();
-
-    let startEvent = new DayPilot.Event({
-      start: DayPilot.DateUtil.fromLocal().getTime(),
-      end: DayPilot.DateUtil.fromLocal().getTime(),
-      id: DayPilot.guid(),
-      text: "start"
+    result.then((res) => {
+      let loc = window.location.href.split('/');
+      window.location.href = "https://" + loc[2] + "/" + loc[3] + "/result?id=" + id;
     });
-    dp.events.add(startEvent);
-    dp.events.remove(startEvent);
+  }
+</script>
 
-    fetch('https://www.jsonstore.io/' + id + '/' + userName)
-      .then((response) =>
-        response.json()
-      )
-      .then((data) => {
-        if (data.result !== null) {
-          dp.events.list = data.result;
-          dp.update();
-        }
-      });
+<div class="clearfix">
+  <h1 id="greeting"></h1>
+  <div id="save" onclick="save()" class="right">save</div>
+</div>
+<div class="main">
+  <div id="dp"></div>
+</div>
 
-  </script>
+<script>
+  var h1 = document.getElementById("greeting").innerHTML = "Hi " + userName + ", select all the times you are available:"
+
+  var dp = new DayPilot.Calendar("dp");
+  dp.locale = "en-gb";
+  dp.viewType = "Week";
+  dp.headerDateFormat = "dddd";
+  dp.startDate = "2018-01-01";
+  dp.cellHeight = 9;
+  dp.cellDuration = 15;
+  dp.timeHeaderCellDuration = 15;
+  dp.eventArrangement = "Full";
+  dp.allowEventOverlap = false;
+  dp.timeRangeSelectedHandling = "Enabled";
+  dp.onTimeRangeSelected = function (args) {
+    dp.clearSelection();
+    dp.events.add(new DayPilot.Event({
+      start: args.start,
+      end: args.end,
+      id: DayPilot.guid(),
+      text: "available"
+    }));
+  };
+  dp.eventDeleteHandling = "Update";
+  dp.eventMoveHandling = "Update";
+  dp.eventResizeHandling = "Update";
+  dp.eventClickHandling = "Enabled";
+  dp.onEventClicked = function (args) {
+    if (args.e.text() === "available") {
+      args.e.text("maybe available");
+    } else {
+      args.e.text("available");
+    }
+    dp.events.update(args.e);
+  };
+  dp.eventHoverHandling = "Disabled";
+  dp.heightSpec = "Full";
+  dp.init();
+
+  let startEvent = new DayPilot.Event({
+    start: DayPilot.DateUtil.fromLocal().getTime(),
+    end: DayPilot.DateUtil.fromLocal().getTime(),
+    id: DayPilot.guid(),
+    text: "start"
+  });
+  dp.events.add(startEvent);
+  dp.events.remove(startEvent);
+
+  fetch('https://jsonbox.io/' + prefix + id + '/' + userName)
+    .then((response) =>
+      response.json()
+    )
+    .then((data) => {
+      if (data !== null && data.length > 0) {
+        let res = data[0];
+        recordID = res._id;
+        dp.events.list = res.data;
+        dp.update();
+      }
+    });
+
+</script>
 
 </body>
 

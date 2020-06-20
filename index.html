@@ -72,14 +72,14 @@
 <body>
   <script>
     function create() {
-      fetch('https://www.jsonstore.io/get-token')
-        .then((response) =>
-          response.json()
-        )
-        .then((data) => {
-          let loc = window.location.href.split('/');
-          window.location.href = "https://" + loc[2] + "/" + loc[3] + "/calendar?id=" + data.token;
-        });
+      var dt = new Date().getTime();
+      var uuid = 'xxyxxxxxxyxxxxxyxxxx'.replace(/[xy]/g, function(c) {
+        var r = (dt + Math.random() * 16) % 16 | 0;
+        dt = Math.floor(dt / 16);
+        return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+      });
+      let loc = window.location.href.split('/');
+      window.location.href = "https://" + loc[2] + "/" + loc[3] + "/calendar/?id=" + uuid;
     }
   </script>
 
